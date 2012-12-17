@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Sample git script based on GitAPI</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.buildblocker.BuildBlockerProperty plugin="build-blocker-plugin@1.2">
+      <useBuildBlocker>false</useBuildBlocker>
+    </hudson.plugins.buildblocker.BuildBlockerProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>BRANCH</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@1.1.26">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <name></name>
+        <refspec></refspec>
+        <url>git@github.com:gitfoobar/jenkins.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>origin/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <disableSubmodules>false</disableSubmodules>
+    <recursiveSubmodules>false</recursiveSubmodules>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <authorOrCommitter>false</authorOrCommitter>
+    <clean>false</clean>
+    <wipeOutWorkspace>false</wipeOutWorkspace>
+    <pruneBranches>false</pruneBranches>
+    <remotePoll>false</remotePoll>
+    <ignoreNotifyCommit>false</ignoreNotifyCommit>
+    <useShallowClone>false</useShallowClone>
+    <buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+    <gitTool>Default</gitTool>
+    <submoduleCfg class="list"/>
+    <relativeTargetDir></relativeTargetDir>
+    <reference></reference>
+    <excludedRegions></excludedRegions>
+    <excludedUsers></excludedUsers>
+    <gitConfigName></gitConfigName>
+    <gitConfigEmail></gitConfigEmail>
+    <skipTag>false</skipTag>
+    <includedRegions></includedRegions>
+    <scmName></scmName>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <org.jenkins__ci.plugins.fail__the__build.FixResultBuilder plugin="fail-the-build-plugin@1.0">
+      <defaultResultName>SUCCESS</defaultResultName>
+      <success></success>
+      <unstable></unstable>
+      <failure></failure>
+      <aborted></aborted>
+    </org.jenkins__ci.plugins.fail__the__build.FixResultBuilder>
+  </builders>
+  <publishers>
+    <org.jvnet.hudson.plugins.groovypostbuild.GroovyPostbuildRecorder plugin="groovy-postbuild@1.9-SNAPSHOT">
+      <groovyScript>import hudson.*;
+import hudson.model.*;
+import hudson.plugins.git.*;
+import hudson.plugins.git.GitAPI;
+import org.eclipse.jgit.transport.*;
+import org.eclipse.jgit.api.Status;
+
+def map = manager.build.getEnvironment()
+def ws = map.get(&apos;WORKSPACE&apos;)
+manager.listener.logger.println(&quot;INFO: ws=&quot; + ws)
+
+//String scriptRoot = &quot;file:///&quot; + map.get(&apos;WORKSPACE&apos;) + &quot;/&quot; + &quot;jenkins&quot;
+String scriptRoot = map.get(&apos;WORKSPACE&apos;) + &quot;/&quot;
+
+ClassLoader parent = getClass().getClassLoader();
+
+def engine = new GroovyScriptEngine(scriptRoot, parent);
+def binding = new Binding ()
+binding.setVariable (&quot;manager&quot;,manager)
+// run the script
+engine.run(&apos;dejenkins_post_processing.groovy&apos;, binding)
+
+
+
+/*
+ClassLoader parent = getClass().getClassLoader();
+GroovyClassLoader loader = new GroovyClassLoader(parent);
+Class groovyClass = loader.parseClass(new File(scriptRoot +&apos;dejenkins_post_processing.groovy&apos;));
+
+manager.listener.logger.println(&quot;INFO: manager.class=&quot; + manager.class)
+
+// let&apos;s call some method on an instance
+GroovyObject groovyObject = (GroovyObject) groovyClass.newInstance();
+Object[] args = {manager};
+groovyObject.invokeMethod(&quot;post_processing&quot;, args);
+*/
+</groovyScript>
+      <behavior>0</behavior>
+    </org.jvnet.hudson.plugins.groovypostbuild.GroovyPostbuildRecorder>
+  </publishers>
+  <buildWrappers/>
+</project>
