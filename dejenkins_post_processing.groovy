@@ -13,7 +13,7 @@ void de_print(msg) {
   manager.listener.logger.println(msg)
 }
 
-void post_processing(manager) {
+void post_processing() {
     build = manager.build
     gitSCM = build.getProject().getScm();
     gitExe = gitSCM.getGitExe(build.getBuiltOn(), manager.listener)
