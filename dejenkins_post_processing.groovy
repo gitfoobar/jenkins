@@ -1,1 +1,1 @@
-println "hello"
+manager.listener.logger.println("INFO:" +  manager.build.getEnvironment().get('WORKSPACE'))
