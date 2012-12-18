@@ -1,8 +1,3 @@
-Line 1
-Line 2 new changed applied on feature3 + Line 2 added changes on master
+# Cleaned up
 
-
-Testing new Remote Close Feature
-Test on JENKINS project
-Test git stash pop
-Test super build_job
+Test 1
